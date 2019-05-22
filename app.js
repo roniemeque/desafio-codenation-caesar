@@ -46,18 +46,24 @@ const decifra = (string, numeroCasas) => {
   return fraseDecifrada;
 };
 
-buscaDesafio().then(desafioIncompleto => {
-  const { cifrado } = desafioIncompleto;
+const salvaResposta = (desafioCompleto, formatacao = null) => {
+  const desafioStringified = JSON.stringify(desafioCompleto, null, formatacao);
+  fs.writeFileSync("answer.json", desafioStringified);
+};
 
-  const decifrado = decifra(cifrado, 8);
+buscaDesafio().then(desafio => {
+  const { cifrado } = desafio;
 
-  console.log("decifrado:", decifrado);
+  desafio.decifrado = decifra(cifrado, 8);
+
+  console.log(desafio);
 
   //guarda decifrado
 
   //gerar resumo
 
   //salvar json
+  salvaResposta(desafio, 2);
 
   //enviar json para api
 });
