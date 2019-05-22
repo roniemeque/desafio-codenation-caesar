@@ -63,7 +63,7 @@ const enviarResposta = async () => {
       "Content-Type": "multipart/form-data",
     },
     formData: {
-      image: fs.createReadStream("./answer.json"),
+      answer: fs.createReadStream("./answer.json"),
     },
   };
 
