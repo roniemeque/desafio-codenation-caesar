@@ -1,5 +1,7 @@
 const axios = require("axios");
 const fs = require("fs");
+const sha1 = require("js-sha1");
+const request = require("request");
 
 const TOKEN = "dd654ebe4315d7c75af16c3d4fe425b5c317c95d";
 const BASE_URL = "https://api.codenation.dev/v1/challenge/dev-ps";
@@ -46,24 +48,43 @@ const decifra = (string, numeroCasas) => {
   return fraseDecifrada;
 };
 
+const geraResumoCripto = string => sha1(string);
+
 const salvaResposta = (desafioCompleto, formatacao = null) => {
   const desafioStringified = JSON.stringify(desafioCompleto, null, formatacao);
   fs.writeFileSync("answer.json", desafioStringified);
 };
 
+const enviarResposta = async () => {
+  const options = {
+    method: "POST",
+    url: `${BASE_URL}/submit-solution?token=${TOKEN}`,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    formData: {
+      image: fs.createReadStream("./answer.json"),
+    },
+  };
+
+  request(options, function(err, res, body) {
+    if (err) console.log(err);
+    console.log(body);
+  });
+};
+
 buscaDesafio().then(desafio => {
   const { cifrado } = desafio;
 
+  //guarda decifrado
   desafio.decifrado = decifra(cifrado, 8);
 
-  console.log(desafio);
-
-  //guarda decifrado
-
   //gerar resumo
+  desafio.resumo_criptografico = geraResumoCripto(desafio.decifrado);
 
   //salvar json
   salvaResposta(desafio, 2);
 
   //enviar json para api
+  enviarResposta();
 });
